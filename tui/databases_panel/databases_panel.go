@@ -1,4 +1,4 @@
-package tui
+package databases_panel
 
 import (
 	tea "github.com/charmbracelet/bubbletea"

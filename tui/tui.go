@@ -3,29 +3,35 @@ package tui
 import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	styles "github.com/jpxcz/sqlterm/tui/styles"
+	databasesModel "github.com/jpxcz/sqlterm/tui/databases_panel"
+	queryModel "github.com/jpxcz/sqlterm/tui/query_panel"
+	selectModel "github.com/jpxcz/sqlterm/tui/selection_panel"
 )
 
 type sessionState uint
 
 const (
 	selectionView sessionState = iota
-	visualizerView
+	queryView
+	databasesView
 )
 
 type mainModel struct {
-	state     sessionState
-	databases tea.Model
-	database  DatabaseModel // todo: change to the right tabs
-	height    int
+	state                    sessionState
+	selectDatabasePanelModel tea.Model
+	queryPanelModel          tea.Model // todo: change to the right tabs
+	databasesPanelModel      tea.Model
+	height                   int
+	width                    int
 }
 
 func newModel() mainModel {
 	m := mainModel{
 		state: selectionView,
 	}
-	m.databases = NewSelectModel()
-	m.database = NewDatabaseModel("fake database selected")
+	m.selectDatabasePanelModel = selectModel.NewSelectModel()
+	m.queryPanelModel = queryModel.NewQueryModel()
+	m.databasesPanelModel = databasesModel.NewDatabaseModel("DB1")
 
 	return m
 }
@@ -45,27 +51,36 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 		case "tab":
 			if m.state == selectionView {
-				m.state = visualizerView
+				m.state = queryView
+			} else if m.state == queryView {
+				m.state = databasesView 
 			} else {
-				m.state = selectionView
-			}
+                m.state = selectionView
+            }
 
 		}
 	case tea.WindowSizeMsg:
-		m.height = msg.Height - 2
+		m.height = msg.Height
+		m.width = msg.Width
 	}
 
 	switch m.state {
 	case selectionView:
-		newSelectModel, newCmd := m.databases.Update(msg)
-		selectionModel, ok := newSelectModel.(SelectModel)
+		newSelectModel, newCmd := m.selectDatabasePanelModel.Update(msg)
+		selectionModel, ok := newSelectModel.(selectModel.SelectModel)
 		if !ok {
 			panic("model is not a SelectModel")
 		}
-		m.databases = selectionModel
+		m.selectDatabasePanelModel = selectionModel
 		cmd = newCmd
-	case visualizerView:
-
+	case queryView:
+		newQueryModel, newCmd := m.queryPanelModel.Update(msg)
+		queryModel, ok := newQueryModel.(queryModel.QueryModel)
+		if !ok {
+			panic("model is not a QueryModel")
+		}
+		m.queryPanelModel = queryModel
+		cmd = newCmd
 	}
 
 	cmds = append(cmds, cmd)
@@ -77,24 +92,40 @@ func (m mainModel) View() string {
 	if m.state == selectionView {
 		s += lipgloss.JoinHorizontal(
 			lipgloss.Top,
-			styles.DatabasesConnectivityViewStyleFocused(15, m.height).Render(
-				m.databases.View(),
+			panelStyleFocused(15, m.height-2).Render(
+				m.selectDatabasePanelModel.View(),
 			),
-			styles.DatabasesConnectivityViewStyleDefault(15, m.height).Render(
-				m.database.View(),
+			lipgloss.JoinVertical(
+				lipgloss.Left,
+				panelStyleDefault(m.width-15-4, 4-2).Render(m.queryPanelModel.View()),
+				panelStyleDefault(m.width-15-4, m.height-8-2).Render(m.databasesPanelModel.View()),
+			),
+		)
+	} else if m.state == queryView {
+		s += lipgloss.JoinHorizontal(
+			lipgloss.Top,
+			panelStyleDefault(15, m.height-2).Render(
+				m.selectDatabasePanelModel.View(),
+			),
+			lipgloss.JoinVertical(
+				lipgloss.Left,
+				panelStyleFocused(m.width-15-4, 4-2).Render(m.queryPanelModel.View()),
+				panelStyleDefault(m.width-15-4, m.height-8-2).Render(m.databasesPanelModel.View()),
 			),
 		)
 	} else {
 		s += lipgloss.JoinHorizontal(
 			lipgloss.Top,
-			styles.DatabasesConnectivityViewStyleDefault(15, m.height).Render(
-				m.databases.View(),
+			panelStyleDefault(15, m.height-2).Render(
+				m.selectDatabasePanelModel.View(),
 			),
-			styles.DatabasesConnectivityViewStyleFocused(15, m.height).Render(
-				m.database.View(),
+			lipgloss.JoinVertical(
+				lipgloss.Left,
+				panelStyleDefault(m.width-15-4, 4-2).Render(m.queryPanelModel.View()),
+				panelStyleFocused(m.width-15-4, m.height-8-2).Render(m.databasesPanelModel.View()),
 			),
 		)
-	}
+    }
 	return s
 }
 
