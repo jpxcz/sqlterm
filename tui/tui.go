@@ -3,41 +3,29 @@ package tui
 import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	styles "github.com/jpxcz/sqlterm/tui/styles"
 )
 
 type sessionState uint
 
 const (
-	dbSelectorView sessionState = iota
-	dbView
-)
-
-var (
-	modelStyle = lipgloss.NewStyle().
-			Width(15).
-			Height(40).
-			Align(lipgloss.Center)
-	focusedModelStyle = lipgloss.NewStyle().
-				Width(15).
-				Height(40).
-				Align(lipgloss.Center).
-				BorderStyle(lipgloss.NormalBorder()).
-				BorderForeground(lipgloss.Color("#FF00FF"))
+	selectionView sessionState = iota
+	visualizerView
 )
 
 type mainModel struct {
 	state     sessionState
-	index     int
 	databases tea.Model
-	database  tea.Model // todo: change to the right tabs
+	database  DatabaseModel // todo: change to the right tabs
+	height    int
 }
 
 func newModel() mainModel {
 	m := mainModel{
-		state: dbSelectorView,
+		state: selectionView,
 	}
-    m.databases = NewDatabasesModelList()
-    m.database = NewDatabasesModelList()
+	m.databases = NewSelectModel()
+	m.database = NewDatabaseModel("fake database selected")
 
 	return m
 }
@@ -48,7 +36,7 @@ func (m mainModel) Init() tea.Cmd {
 
 func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
-	// var cmds []tea.Cmd
+	var cmds []tea.Cmd
 
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
@@ -56,39 +44,61 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "ctrl+c", "q":
 			return m, tea.Quit
 		case "tab":
-			if m.state == dbSelectorView {
-				m.state = dbView
+			if m.state == selectionView {
+				m.state = visualizerView
 			} else {
-				m.state = dbSelectorView
+				m.state = selectionView
 			}
+
 		}
+	case tea.WindowSizeMsg:
+		m.height = msg.Height - 2
 	}
-	return m, cmd
+
+	switch m.state {
+	case selectionView:
+		newSelectModel, newCmd := m.databases.Update(msg)
+		selectionModel, ok := newSelectModel.(SelectModel)
+		if !ok {
+			panic("model is not a SelectModel")
+		}
+		m.databases = selectionModel
+		cmd = newCmd
+	case visualizerView:
+
+	}
+
+	cmds = append(cmds, cmd)
+	return m, tea.Batch(cmds...)
 }
 
 func (m mainModel) View() string {
 	var s string
-	if m.state == dbSelectorView {
+	if m.state == selectionView {
 		s += lipgloss.JoinHorizontal(
 			lipgloss.Top,
-			focusedModelStyle.Render(
-				modelStyle.Render(m.databases.View()),
+			styles.DatabasesConnectivityViewStyleFocused(15, m.height).Render(
+				m.databases.View(),
 			),
-			modelStyle.Render(m.database.View()),
+			styles.DatabasesConnectivityViewStyleDefault(15, m.height).Render(
+				m.database.View(),
+			),
 		)
 	} else {
 		s += lipgloss.JoinHorizontal(
 			lipgloss.Top,
-			modelStyle.Render(
-				modelStyle.Render(m.databases.View()),
+			styles.DatabasesConnectivityViewStyleDefault(15, m.height).Render(
+				m.databases.View(),
 			),
-			focusedModelStyle.Render(m.database.View()),
+			styles.DatabasesConnectivityViewStyleFocused(15, m.height).Render(
+				m.database.View(),
+			),
 		)
 	}
 	return s
 }
 
 func NewTeaProgram() *tea.Program {
-    p := tea.NewProgram(newModel())
-    return p
+	p := tea.NewProgram(newModel())
+	return p
 }
