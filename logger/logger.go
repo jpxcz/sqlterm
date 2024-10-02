@@ -1,15 +1,13 @@
-package main
+package logger
 
 import (
 	"fmt"
-	"log"
 	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/jpxcz/sqlterm/tui"
 )
 
-func main() {
+func startupLogger() {
 	if len(os.Getenv("DEBUG")) > 0 {
 		f, err := tea.LogToFile("debug.log", "debug")
 		if err != nil {
@@ -17,11 +15,5 @@ func main() {
 			os.Exit(1)
 		}
 		defer f.Close()
-	}
-
-	p := tui.NewTeaProgram()
-	if _, err := p.Run(); err != nil {
-		log.Fatal(err)
-
 	}
 }

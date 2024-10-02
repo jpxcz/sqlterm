@@ -1,14 +1,26 @@
 package tui
 
 import (
+	"log"
+
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	databasesModel "github.com/jpxcz/sqlterm/tui/databases_panel"
 	queryModel "github.com/jpxcz/sqlterm/tui/query_panel"
 	selectModel "github.com/jpxcz/sqlterm/tui/selection_panel"
+	"github.com/jpxcz/sqlterm/tui/commands"
 )
 
 type sessionState uint
+
+type UiDimensions struct {
+	height int
+	width  int
+}
+
+type databaseConnected struct {
+	key string
+}
 
 const (
 	selectionView sessionState = iota
@@ -19,10 +31,10 @@ const (
 type mainModel struct {
 	state                    sessionState
 	selectDatabasePanelModel tea.Model
-	queryPanelModel          tea.Model // todo: change to the right tabs
+	queryPanelModel          tea.Model
 	databasesPanelModel      tea.Model
-	height                   int
-	width                    int
+	uiDimensions             UiDimensions
+	databasesConnected       bool
 }
 
 func newModel() mainModel {
@@ -32,6 +44,7 @@ func newModel() mainModel {
 	m.selectDatabasePanelModel = selectModel.NewSelectModel()
 	m.queryPanelModel = queryModel.NewQueryModel()
 	m.databasesPanelModel = databasesModel.NewDatabaseModel("DB1")
+	m.uiDimensions = UiDimensions{height: 0, width: 0}
 
 	return m
 }
@@ -53,15 +66,16 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if m.state == selectionView {
 				m.state = queryView
 			} else if m.state == queryView {
-				m.state = databasesView 
+				m.state = databasesView
 			} else {
-                m.state = selectionView
-            }
-
+				m.state = selectionView
+			}
 		}
 	case tea.WindowSizeMsg:
-		m.height = msg.Height
-		m.width = msg.Width
+		m.uiDimensions.height = msg.Height
+		m.uiDimensions.width = msg.Width
+    case commands.MsgDatabaseSelectionUpdate:
+        log.Println("MsgDatabaseSelectionUpdate")
 	}
 
 	switch m.state {
@@ -92,40 +106,43 @@ func (m mainModel) View() string {
 	if m.state == selectionView {
 		s += lipgloss.JoinHorizontal(
 			lipgloss.Top,
-			panelStyleFocused(15, m.height-2).Render(
+			panelStyleFocused(15, m.uiDimensions.height-2).Render(
 				m.selectDatabasePanelModel.View(),
 			),
 			lipgloss.JoinVertical(
 				lipgloss.Left,
-				panelStyleDefault(m.width-15-4, 4-2).Render(m.queryPanelModel.View()),
-				panelStyleDefault(m.width-15-4, m.height-8-2).Render(m.databasesPanelModel.View()),
+				panelStyleDefault(m.uiDimensions.width-15-4, 4-2).Render(m.queryPanelModel.View()),
+				panelStyleDefault(
+					m.uiDimensions.width-15-4,
+					m.uiDimensions.height-8-2,
+				).Render(m.databasesPanelModel.View()),
 			),
 		)
 	} else if m.state == queryView {
 		s += lipgloss.JoinHorizontal(
 			lipgloss.Top,
-			panelStyleDefault(15, m.height-2).Render(
+			panelStyleDefault(15, m.uiDimensions.height-2).Render(
 				m.selectDatabasePanelModel.View(),
 			),
 			lipgloss.JoinVertical(
 				lipgloss.Left,
-				panelStyleFocused(m.width-15-4, 4-2).Render(m.queryPanelModel.View()),
-				panelStyleDefault(m.width-15-4, m.height-8-2).Render(m.databasesPanelModel.View()),
+				panelStyleFocused(m.uiDimensions.width-15-4, 4-2).Render(m.queryPanelModel.View()),
+				panelStyleDefault(m.uiDimensions.width-15-4, m.uiDimensions.height-8-2).Render(m.databasesPanelModel.View()),
 			),
 		)
 	} else {
 		s += lipgloss.JoinHorizontal(
 			lipgloss.Top,
-			panelStyleDefault(15, m.height-2).Render(
+			panelStyleDefault(15, m.uiDimensions.height-2).Render(
 				m.selectDatabasePanelModel.View(),
 			),
 			lipgloss.JoinVertical(
 				lipgloss.Left,
-				panelStyleDefault(m.width-15-4, 4-2).Render(m.queryPanelModel.View()),
-				panelStyleFocused(m.width-15-4, m.height-8-2).Render(m.databasesPanelModel.View()),
+				panelStyleDefault(m.uiDimensions.width-15-4, 4-2).Render(m.queryPanelModel.View()),
+				panelStyleFocused(m.uiDimensions.width-15-4, m.uiDimensions.height-8-2).Render(m.databasesPanelModel.View()),
 			),
 		)
-    }
+	}
 	return s
 }
 

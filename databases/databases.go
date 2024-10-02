@@ -1,9 +1,23 @@
 package databases
 
 import (
-	"log"
-	"os"
+	"database/sql"
+    "github.com/jpxcz/sqlterm/databases/mysql"
+    "errors"
 )
+
+const (
+    DbDisconnected DbConnectionStatus = iota
+    DbConnected
+    DbErrorConnection
+)
+
+type DbConnectionStatus uint
+
+type Database struct {
+	Db               *sql.DB
+	ConnectionStatus DbConnectionStatus
+}
 
 type DatabaseCredentials struct {
 	ShortName string `json:"shortname"`
@@ -11,14 +25,55 @@ type DatabaseCredentials struct {
 	Hostname  string `json:"hostname"`
 	Password  string `json:"password"`
 	Port      string `json:"port"`
+	Type      string `json:"type"`
 }
 
-func GetDatabases() []DatabaseCredentials {
-    databases, err := ReadDatabasesJson()
-    if err != nil {
-        log.Fatalf("could not read databases file correctly. %v", err )
-        os.Exit(1)
+var databases = make(map[string]*Database)
+
+func createDBConnection(username string, host string, port string, password string, dbType string) (*sql.DB, error) {
+    if dbType == "mysql" {
+        return mysql.CreateDBConnection(username, host, port, password)
     }
 
-    return databases
+    return nil, errors.New("Database type not supported")
+}
+
+func ConnectToDatabase(key string, username string, host string, port string, password string, dbType string) (*Database, error) {
+    if databases[key] != nil && databases[key].Db != nil {
+        return databases[key], nil
+    }
+
+    connection := &Database{
+        Db: nil,
+        ConnectionStatus: DbDisconnected,
+    }
+
+    databases[key] = connection
+    db, err := createDBConnection(username, host, port, password, dbType)
+    if err != nil {
+        connection.ConnectionStatus = DbErrorConnection
+    } else {
+        connection.Db = db
+        connection.ConnectionStatus = DbConnected
+    }
+
+    databases[key] = connection
+    return connection, err
+}
+
+func DisconnectFromDatabase(key string) {
+    if databases[key] == nil {
+        return
+    }
+
+    databases[key].Db.Close()
+    delete(databases, key)
+}
+
+func GetConnection(key string) *Database {
+    if databases[key] == nil {
+        return nil
+    }
+
+    return databases[key]
 }

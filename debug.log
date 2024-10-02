@@ -1,0 +1,38 @@
+debug 2024/10/01 18:30:07 connected to database
+debug 2024/10/01 18:30:14 connected to database
+debug 2024/10/01 18:30:33 connected to database
+debug 2024/10/01 18:32:18 connecting to database
+debug 2024/10/01 18:32:18 connected to database
+debug 2024/10/01 18:33:33 connecting to database
+debug 2024/10/01 18:33:33 connected to database
+debug 2024/10/01 18:33:35 connecting to database
+debug 2024/10/01 18:33:35 connected to database
+debug 2024/10/01 18:35:12 connecting to database
+debug 2024/10/01 18:35:12 connected to database
+debug 2024/10/01 18:35:19 connecting to database user1:password1@tcp(0.0.0.0:3306)/
+debug 2024/10/01 18:35:19 connected to database
+debug 2024/10/01 18:35:33 connecting to database user1:password1@tcp(0.0.0.0:330999)/
+debug 2024/10/01 18:35:33 connected to database
+debug 2024/10/01 18:36:41 connecting to database user1:password1@tcp(0.0.0.0:330999)/
+debug 2024/10/01 18:36:41 dial tcp: address 330999: invalid port
+debug 2024/10/01 18:36:41 error connecting to database
+debug 2024/10/01 18:36:41 connected to database
+debug 2024/10/01 18:37:54 connecting to database user1:password1@tcp(0.0.0.0:3306)/
+debug 2024/10/01 18:37:54 connected to database
+debug 2024/10/01 18:37:56 connecting to database user1:password1@tcp(0.0.0.0:3306)/
+debug 2024/10/01 18:37:56 connected to database
+debug 2024/10/01 18:37:58 connecting to database user1:password1@tcp(0.0.0.0:3306)/
+debug 2024/10/01 18:37:58 connected to database
+debug 2024/10/01 18:39:03 connecting to database user1:password1@tcp(0.0.0.0:3306)/
+debug 2024/10/01 18:39:03 connected to database
+debug 2024/10/01 18:39:04 connected to database
+debug 2024/10/01 18:39:08 connecting to database user1:password1@tcp(0.0.0.0:3306)/
+debug 2024/10/01 18:39:08 connected to database
+debug 2024/10/01 18:39:09 connected to database
+debug 2024/10/01 18:50:55 connecting to database user1:password1@tcp(0.0.0.0:3306)/
+debug 2024/10/01 18:50:55 connected to database
+debug 2024/10/01 18:50:57 connecting to database user1:password1@tcp(0.0.0.0:3306)/
+debug 2024/10/01 18:50:57 connected to database
+debug 2024/10/01 18:51:24 connecting to database user1:password1@tcp(0.0.0.0:3306)/
+debug 2024/10/01 18:51:24 connected to database
+debug 2024/10/01 18:51:24 MsgDatabaseSelectionUpdate
