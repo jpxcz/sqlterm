@@ -34,7 +34,6 @@ type mainModel struct {
 	queryPanelModel          tea.Model
 	databasesPanelModel      tea.Model
 	uiDimensions             UiDimensions
-	databasesConnected       bool
 }
 
 func newModel() mainModel {

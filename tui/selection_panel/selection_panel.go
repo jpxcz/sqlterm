@@ -12,7 +12,6 @@ import (
 
 type choice struct {
 	title            string
-	value            string
 	selected         bool
 	connectionStatus uint
 }
@@ -58,9 +57,9 @@ func NewSelectModel() SelectModel {
 	return SelectModel{
 		cursor: 0,
 		choices: []choice{
-			{"DB1", "DB1", false, 0},
-			{"DB2", "DB2", false, 0},
-			{"DB3", "DB3", false, 0},
+			{"DB1", false, 0},
+			{"DB2", false, 0},
+			{"DB3", false, 0},
 		},
 	}
 }
