@@ -1,11 +1,12 @@
 package databases
 
 import (
-	"log"
+	"fmt"
 	"os"
 )
 
 type DatabaseCredentials struct {
+	Key       string `json:"key"`
 	ShortName string `json:"shortname"`
 	Username  string `json:"username"`
 	Hostname  string `json:"hostname"`
@@ -13,12 +14,28 @@ type DatabaseCredentials struct {
 	Port      string `json:"port"`
 }
 
-func GetDatabases() []DatabaseCredentials {
-    databases, err := ReadDatabasesJson()
-    if err != nil {
-        log.Fatalf("could not read databases file correctly. %v", err )
-        os.Exit(1)
-    }
+func GetDatabases() ([]DatabaseCredentials, map[string]DatabaseCredentials, []string) {
+	// read the config file containing the database credentials
+	databases, err := ReadDatabasesJson()
+	if err != nil {
+		fmt.Printf("Exiting: could not read databases file correctly. %v\n", err)
+		os.Exit(1)
+	} else if len(databases) == 0 {
+		fmt.Println("Exiting: database config file [~/.config/sqlterm/databases.json] contained no data")
+		os.Exit(1)
+	}
 
-    return databases
+	// Create a map of db envs to login credentials
+	databaseMap := make(map[string]DatabaseCredentials)
+
+	// Create an array of the db env keys (used for the cmdline args help)
+	var databaseKeys []string
+
+	for _, db := range databases {
+		// fillout the db envs map and the array
+		databaseMap[db.Key] = db
+		databaseKeys = append(databaseKeys, db.Key)
+	}
+
+	return databases, databaseMap, databaseKeys
 }

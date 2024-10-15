@@ -1,18 +1,21 @@
 package mysqlclient
 
 import (
-	"bytes"
 	"fmt"
-	"log"
 	"os"
 	"os/exec"
 )
 
+func ExecMySqlClient(username string, host string, password string, formatAsTable bool) {
+	fmt.Printf("connecting to %s host\n", host)
 
-func ExecMySqlClient(username string, host string, password string) {
-    log.Printf("connecting to %v host\n", host)
-	cmd := exec.Command("mysql", "-u"+username, "-h"+host, "-p"+password)
-	var out, stderr bytes.Buffer
+	args := []string{"-u" + username, "-h" + host, "-p" + password}
+
+	if formatAsTable {
+		args = append(args, "-t")
+	}
+
+	cmd := exec.Command("mysql", args...)
 
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
@@ -20,7 +23,7 @@ func ExecMySqlClient(username string, host string, password string) {
 
 	err := cmd.Run()
 	if err != nil {
-		fmt.Println(fmt.Sprintf("Error executing query. Command Output: %+v\n: %+v, %v", out.String(), stderr.String(), err))
-		log.Fatalf("Error executing query. Command Output: %+v\n: %+v, %v", out.String(), stderr.String(), err)
+		fmt.Printf("Exiting: Error connecting to mysql. Command Output: %+v\n", err)
+		os.Exit(1)
 	}
 }
