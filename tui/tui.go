@@ -76,7 +76,7 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.uiDimensions.width = msg.Width
 	case commands.MsgDatabaseSelectionUpdate:
 		log.Println("updating databases selection")
-        m.databasesPanelModel.Update(commands.MsgDatabaseSelectionUpdate(true))
+		m.databasesPanelModel.Update(commands.MsgDatabaseSelectionUpdate(true))
 	}
 
 	switch m.state {
@@ -95,6 +95,14 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			panic("model is not a QueryModel")
 		}
 		m.queryPanelModel = queryModel
+		cmd = newCmd
+	case databasesView:
+		newDatabaseModel, newCmd := m.databasesPanelModel.Update(msg)
+		databaseModel, ok := newDatabaseModel.(databasesModel.DatabaseModel)
+		if !ok {
+			panic("model is not a DatabaseModel")
+		}
+		m.databasesPanelModel = databaseModel
 		cmd = newCmd
 	}
 
