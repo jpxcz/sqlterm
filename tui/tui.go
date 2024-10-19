@@ -75,7 +75,8 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.uiDimensions.height = msg.Height
 		m.uiDimensions.width = msg.Width
 	case commands.MsgDatabaseSelectionUpdate:
-		log.Println("MsgDatabaseSelectionUpdate")
+		log.Println("updating databases selection")
+        m.databasesPanelModel.Update(commands.MsgDatabaseSelectionUpdate(true))
 	}
 
 	switch m.state {
