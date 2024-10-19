@@ -6,6 +6,7 @@ import (
 	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/jpxcz/sqlterm/databases"
 	"github.com/jpxcz/sqlterm/tui"
 )
 
@@ -18,6 +19,8 @@ func main() {
 		}
 		defer f.Close()
 	}
+
+    databases.NewDatabases()
 
 	p := tui.NewTeaProgram()
 	if _, err := p.Run(); err != nil {

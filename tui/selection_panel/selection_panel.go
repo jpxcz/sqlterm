@@ -53,14 +53,27 @@ type SelectModel struct {
 	choices []choice
 }
 
+func newChoices(dbs map[string]*databases.Database) []choice {
+	choices := make([]choice, 0)
+
+	for key, db := range dbs {
+		choices = append(choices, choice{
+			title:            key,
+			selected:         false,
+			connectionStatus: uint(db.ConnectionStatus),
+		})
+	}
+
+	return choices
+}
+
 func NewSelectModel() SelectModel {
+	dbs := databases.GetDatabases()
+	choices := newChoices(dbs)
+
 	return SelectModel{
-		cursor: 0,
-		choices: []choice{
-			{"DB1", false, 0},
-			{"DB2", false, 0},
-			{"DB3", false, 0},
-		},
+		cursor:  0,
+		choices: choices,
 	}
 }
 
@@ -69,7 +82,7 @@ func (m SelectModel) Init() tea.Cmd {
 }
 
 func (m SelectModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-    var cmd tea.Cmd
+	var cmd tea.Cmd
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
@@ -103,27 +116,34 @@ func (m *SelectModel) toogleOption() tea.Cmd {
 		return nil
 	}
 
+	keyOption := m.choices[m.cursor].title
+
+	// To connect
 	if !m.choices[m.cursor].selected {
-		db, err := databases.ConnectToDatabase(
-			"DB1",
-			"user1",
-			"0.0.0.0",
-			"3306",
-			"password1",
-			"mysql",
+        log.Println("connecting to choice", keyOption)
+		db := databases.GetConnection(keyOption)
+
+		dbConnectionStatus, err := databases.ConnectToDatabase(
+			db.DatabaseCredentials.ShortName,
+			db.DatabaseCredentials.Username,
+			db.DatabaseCredentials.Hostname,
+			db.DatabaseCredentials.Port,
+			db.DatabaseCredentials.Password,
+			db.DatabaseCredentials.Type,
 		)
-        if err != nil {
-            log.Println("error connecting to database")
-        }
 
-        log.Println("connected to database")
+		if err != nil {
+			log.Println("cannot connect to choice", keyOption, err)
+		}
 
-		m.choices[m.cursor].connectionStatus = uint(db.ConnectionStatus)
+		m.choices[m.cursor].connectionStatus = uint(dbConnectionStatus)
 		m.choices[m.cursor].selected = true
 		return commands.CmdDatabaseSelectionUpdate
 	}
 
-	databases.DisconnectFromDatabase("DB1")
+	// To disconnect
+    log.Println("disconnecting from choice", keyOption)
+	databases.DisconnectFromDatabase(keyOption)
 	m.choices[m.cursor].connectionStatus = uint(databases.DbDisconnected)
 	m.choices[m.cursor].selected = false
 

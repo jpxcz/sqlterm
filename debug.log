@@ -36,3 +36,78 @@ debug 2024/10/01 18:50:57 connected to database
 debug 2024/10/01 18:51:24 connecting to database user1:password1@tcp(0.0.0.0:3306)/
 debug 2024/10/01 18:51:24 connected to database
 debug 2024/10/01 18:51:24 MsgDatabaseSelectionUpdate
+debug 2024/10/19 10:16:05 connecting to database user1:password1@tcp(0.0.0.0:3306)/
+debug 2024/10/19 10:16:05 connected to database
+debug 2024/10/19 10:16:05 MsgDatabaseSelectionUpdate
+debug 2024/10/19 10:16:05 MsgDatabaseSelectionUpdate
+debug 2024/10/19 10:16:06 connecting to database user1:password1@tcp(0.0.0.0:3306)/
+debug 2024/10/19 10:16:06 connected to database
+debug 2024/10/19 10:16:06 MsgDatabaseSelectionUpdate
+debug 2024/10/19 10:16:06 MsgDatabaseSelectionUpdate
+debug 2024/10/19 10:16:07 connecting to database user1:password1@tcp(0.0.0.0:3306)/
+debug 2024/10/19 10:16:07 connected to database
+debug 2024/10/19 10:16:07 MsgDatabaseSelectionUpdate
+debug 2024/10/19 10:16:07 MsgDatabaseSelectionUpdate
+debug 2024/10/19 10:16:08 connecting to database user1:password1@tcp(0.0.0.0:3306)/
+debug 2024/10/19 10:16:08 connected to database
+debug 2024/10/19 10:16:08 MsgDatabaseSelectionUpdate
+debug 2024/10/19 10:16:08 MsgDatabaseSelectionUpdate
+debug 2024/10/19 10:16:36 connecting to database user1:password1@tcp(0.0.0.0:3306)/
+debug 2024/10/19 10:16:36 connected to database
+debug 2024/10/19 10:16:36 MsgDatabaseSelectionUpdate
+debug 2024/10/19 10:16:37 MsgDatabaseSelectionUpdate
+debug 2024/10/19 11:18:22 map[]
+debug 2024/10/19 11:19:28 connecting to database user1:password1@tcp(0.0.0.0:3306)/
+debug 2024/10/19 11:19:28 MsgDatabaseSelectionUpdate
+debug 2024/10/19 11:19:33 MsgDatabaseSelectionUpdate
+debug 2024/10/19 11:19:40 connecting to database user1:password1@tcp(0.0.0.0:3306)/
+debug 2024/10/19 11:19:40 MsgDatabaseSelectionUpdate
+debug 2024/10/19 11:19:41 MsgDatabaseSelectionUpdate
+debug 2024/10/19 11:19:57 connecting to database user1:password1@tcp(0.0.0.0:3306)/
+debug 2024/10/19 11:19:57 MsgDatabaseSelectionUpdate
+debug 2024/10/19 11:19:59 MsgDatabaseSelectionUpdate
+debug 2024/10/19 11:20:55 [{DB1 false 0}]
+debug 2024/10/19 11:20:55 connecting to database user1:password1@tcp(0.0.0.0:3306)/
+debug 2024/10/19 11:20:55 MsgDatabaseSelectionUpdate
+debug 2024/10/19 11:20:56 [{DB1 true 1}]
+debug 2024/10/19 11:20:56 MsgDatabaseSelectionUpdate
+debug 2024/10/19 11:23:37 connecting to choice DB1
+debug 2024/10/19 11:23:37 connecting to database user1:password1@tcp(0.0.0.0:3306)/
+debug 2024/10/19 11:23:37 MsgDatabaseSelectionUpdate
+debug 2024/10/19 11:23:39 disconnecting from choice DB1
+debug 2024/10/19 11:23:39 MsgDatabaseSelectionUpdate
+debug 2024/10/19 11:23:42 connecting to choice DB1
+debug 2024/10/19 11:23:42 connecting to database user1:password1@tcp(0.0.0.0:3306)/
+debug 2024/10/19 11:23:42 MsgDatabaseSelectionUpdate
+debug 2024/10/19 11:23:45 disconnecting from choice DB1
+debug 2024/10/19 11:23:45 MsgDatabaseSelectionUpdate
+debug 2024/10/19 11:26:57 connecting to choice DB1
+debug 2024/10/19 11:26:57 connecting to database user1:password1@tcp(0.0.0.0:3306)/
+debug 2024/10/19 11:26:57 MsgDatabaseSelectionUpdate
+debug 2024/10/19 11:26:57 disconnecting from choice DB1
+debug 2024/10/19 11:26:57 MsgDatabaseSelectionUpdate
+debug 2024/10/19 11:27:02 connecting to choice DB1
+debug 2024/10/19 11:27:02 connecting to database user1:password1@tcp(0.0.0.0:3306)/
+debug 2024/10/19 11:27:02 MsgDatabaseSelectionUpdate
+debug 2024/10/19 11:27:04 disconnecting from choice DB1
+debug 2024/10/19 11:27:04 MsgDatabaseSelectionUpdate
+debug 2024/10/19 11:28:29 connecting to choice DB2
+debug 2024/10/19 11:28:29 connecting to database user2:password2@tcp(0.0.0.0:3307)/
+debug 2024/10/19 11:28:29 MsgDatabaseSelectionUpdate
+debug 2024/10/19 11:28:31 connecting to choice DB1
+debug 2024/10/19 11:28:31 connecting to database user1:password1@tcp(0.0.0.0:3306)/
+debug 2024/10/19 11:28:31 MsgDatabaseSelectionUpdate
+debug 2024/10/19 11:28:32 disconnecting from choice DB1
+debug 2024/10/19 11:28:32 MsgDatabaseSelectionUpdate
+debug 2024/10/19 11:28:32 disconnecting from choice DB2
+debug 2024/10/19 11:28:32 MsgDatabaseSelectionUpdate
+debug 2024/10/19 11:28:33 connecting to choice DB1
+debug 2024/10/19 11:28:33 connecting to database user1:password1@tcp(0.0.0.0:3306)/
+debug 2024/10/19 11:28:33 MsgDatabaseSelectionUpdate
+debug 2024/10/19 11:28:34 connecting to choice DB2
+debug 2024/10/19 11:28:34 connecting to database user2:password2@tcp(0.0.0.0:3307)/
+debug 2024/10/19 11:28:34 MsgDatabaseSelectionUpdate
+debug 2024/10/19 11:28:34 disconnecting from choice DB2
+debug 2024/10/19 11:28:34 MsgDatabaseSelectionUpdate
+debug 2024/10/19 11:28:35 disconnecting from choice DB1
+debug 2024/10/19 11:28:35 MsgDatabaseSelectionUpdate

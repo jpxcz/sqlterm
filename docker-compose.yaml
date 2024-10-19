@@ -10,3 +10,13 @@ services:
       MYSQL_PASSWORD: password1
     ports:
       - "3306:3306"
+  db2:
+    image: mysql:8
+    container_name: db2
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: db2
+      MYSQL_USER: user2
+      MYSQL_PASSWORD: password2
+    ports:
+      - "3307:3306"

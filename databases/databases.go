@@ -3,8 +3,6 @@ package databases
 import (
 	"database/sql"
 	"errors"
-
-	"github.com/jpxcz/sqlterm/databases/mysql"
 )
 
 const (
@@ -15,12 +13,6 @@ const (
 
 type DbConnectionStatus uint
 
-type Database struct {
-	Db                  *sql.DB
-	ConnectionStatus    DbConnectionStatus
-	DatabaseCredentials DatabaseCredentials
-}
-
 type DatabaseCredentials struct {
 	ShortName string `json:"shortname"`
 	Username  string `json:"username"`
@@ -30,65 +22,54 @@ type DatabaseCredentials struct {
 	Type      string `json:"type"`
 }
 
+type Database struct {
+	Db                  *sql.DB
+	ConnectionStatus    DbConnectionStatus
+	DatabaseCredentials DatabaseCredentials
+}
+
 var databases = make(map[string]*Database)
 
-func createDBConnection(
-	username string,
-	host string,
-	port string,
-	password string,
-	dbType string,
-) (*sql.DB, error) {
-	if dbType == "mysql" {
-		return mysql.CreateDBConnection(username, host, port, password)
+// TODO: remove hardcoded values. We should get them from somewhere a file or something
+func NewDatabases() map[string]*Database {
+	databases = map[string]*Database{
+		"DB1": {
+			Db:               nil,
+			ConnectionStatus: DbDisconnected,
+			DatabaseCredentials: DatabaseCredentials{
+				ShortName: "DB1",
+				Username:  "user1",
+				Hostname:  "0.0.0.0",
+				Password:  "password1",
+				Port:      "3306",
+				Type:      "mysql",
+			},
+		},
+		"DB2": {
+			Db:               nil,
+			ConnectionStatus: DbDisconnected,
+			DatabaseCredentials: DatabaseCredentials{
+				ShortName: "DB2",
+				Username:  "user2",
+				Hostname:  "0.0.0.0",
+				Password:  "password2",
+				Port:      "3307",
+				Type:      "mysql",
+			},
+		},
 	}
 
-	return nil, errors.New("Database type not supported")
+	return databases
 }
 
-func ConnectToDatabase(
-	key string,
-	username string,
-	host string,
-	port string,
-	password string,
-	dbType string,
-) (*Database, error) {
-	if databases[key] != nil && databases[key].Db != nil {
-		return databases[key], nil
-	}
-
-	connection := &Database{
-		Db:               nil,
-		ConnectionStatus: DbDisconnected,
-	}
-
-	databases[key] = connection
-	db, err := createDBConnection(username, host, port, password, dbType)
-	if err != nil {
-		connection.ConnectionStatus = DbErrorConnection
-	} else {
-		connection.Db = db
-		connection.ConnectionStatus = DbConnected
-	}
-
-	databases[key] = connection
-	return connection, err
-}
-
-func DisconnectFromDatabase(key string) {
+func GetDatabaseCredentials(key string) (DatabaseCredentials, error) {
 	if databases[key] == nil {
-		return
+		return DatabaseCredentials{}, errors.New("could not find database credentials for " + key)
 	}
 
-	databases[key].Db.Close()
-	delete(databases, key)
+	return databases[key].DatabaseCredentials, nil
 }
 
-func GetConnection(key string) *Database {
-	if databases[key] == nil {
-		return nil
-	}
-
-	return databases[key]
+func GetDatabases() map[string]*Database {
+	return databases
 }

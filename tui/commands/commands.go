@@ -2,11 +2,8 @@ package commands
 
 import tea "github.com/charmbracelet/bubbletea"
 
-type MsgDatabaseSelectionUpdate struct {
-    value string
-    selected bool
-}
+type MsgDatabaseSelectionUpdate bool
 
 func CmdDatabaseSelectionUpdate() tea.Msg {
-    return MsgDatabaseSelectionUpdate(true)
+	return MsgDatabaseSelectionUpdate(true)
 }

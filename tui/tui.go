@@ -5,10 +5,10 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/jpxcz/sqlterm/tui/commands"
 	databasesModel "github.com/jpxcz/sqlterm/tui/databases_panel"
 	queryModel "github.com/jpxcz/sqlterm/tui/query_panel"
 	selectModel "github.com/jpxcz/sqlterm/tui/selection_panel"
-	"github.com/jpxcz/sqlterm/tui/commands"
 )
 
 type sessionState uint
@@ -40,6 +40,7 @@ func newModel() mainModel {
 	m := mainModel{
 		state: selectionView,
 	}
+
 	m.selectDatabasePanelModel = selectModel.NewSelectModel()
 	m.queryPanelModel = queryModel.NewQueryModel()
 	m.databasesPanelModel = databasesModel.NewDatabaseModel("DB1")
@@ -73,8 +74,8 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.uiDimensions.height = msg.Height
 		m.uiDimensions.width = msg.Width
-    case commands.MsgDatabaseSelectionUpdate:
-        log.Println("MsgDatabaseSelectionUpdate")
+	case commands.MsgDatabaseSelectionUpdate:
+		log.Println("MsgDatabaseSelectionUpdate")
 	}
 
 	switch m.state {
