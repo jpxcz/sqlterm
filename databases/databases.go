@@ -1,33 +1,8 @@
 package databases
 
 import (
-	"database/sql"
 	"errors"
 )
-
-const (
-	DbDisconnected DbConnectionStatus = iota
-	DbConnected
-	DbErrorConnection
-)
-
-type DbConnectionStatus uint
-
-type DatabaseCredentials struct {
-	ShortName    string `json:"shortname"`
-	Username     string `json:"username"`
-	DatabaseName string `json:"database_name"`
-	Hostname     string `json:"hostname"`
-	Password     string `json:"password"`
-	Port         string `json:"port"`
-	Type         string `json:"type"`
-}
-
-type Database struct {
-	Db                  *sql.DB
-	ConnectionStatus    DbConnectionStatus
-	DatabaseCredentials DatabaseCredentials
-}
 
 var databases = make(map[string]*Database)
 
@@ -35,7 +10,6 @@ var databases = make(map[string]*Database)
 func NewDatabases() map[string]*Database {
 	databases = map[string]*Database{
 		"DB1": {
-			Db:               nil,
 			ConnectionStatus: DbDisconnected,
 			DatabaseCredentials: DatabaseCredentials{
 				ShortName: "DB1",
@@ -48,7 +22,6 @@ func NewDatabases() map[string]*Database {
 			},
 		},
 		"DB2": {
-			Db:               nil,
 			ConnectionStatus: DbDisconnected,
 			DatabaseCredentials: DatabaseCredentials{
 				ShortName: "DB2",
@@ -75,4 +48,13 @@ func GetDatabaseCredentials(key string) (DatabaseCredentials, error) {
 
 func GetDatabases() map[string]*Database {
 	return databases
+}
+
+
+func GetDatabase(key string) (*Database, error) {
+	if databases[key] == nil {
+		return nil, errors.New("could not find database for " + key) 
+	}
+
+	return databases[key], nil
 }

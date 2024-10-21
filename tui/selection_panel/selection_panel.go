@@ -117,35 +117,31 @@ func (m *SelectModel) toogleOption() tea.Cmd {
 	}
 
 	keyOption := m.choices[m.cursor].title
+    db, err := databases.GetDatabase(keyOption)
 
 	// To connect
 	if !m.choices[m.cursor].selected {
         log.Println("connecting to choice", keyOption)
-		db := databases.GetConnection(keyOption)
+        if err != nil {
+            log.Println("cannot get database", keyOption, err)
+            return nil
+        }
 
-		dbConnectionStatus, err := databases.ConnectToDatabase(
-			db.DatabaseCredentials.ShortName,
-			db.DatabaseCredentials.Username,
-            db.DatabaseCredentials.DatabaseName,
-			db.DatabaseCredentials.Hostname,
-			db.DatabaseCredentials.Port,
-			db.DatabaseCredentials.Password,
-			db.DatabaseCredentials.Type,
-		)
+        err = db.Ping()
+        if err != nil {
+            log.Println("cannot verify connectivity", keyOption, err)
+            return nil
+        }
 
-		if err != nil {
-			log.Println("cannot connect to choice", keyOption, err)
-		}
-
-		m.choices[m.cursor].connectionStatus = uint(dbConnectionStatus)
+		m.choices[m.cursor].connectionStatus = uint(db.ConnectionStatus)
 		m.choices[m.cursor].selected = true
 		return commands.CmdDatabaseSelectionUpdate
 	}
 
 	// To disconnect
     log.Println("disconnecting from choice", keyOption)
-	databases.DisconnectFromDatabase(keyOption)
-	m.choices[m.cursor].connectionStatus = uint(databases.DbDisconnected)
+    db.Close()
+	m.choices[m.cursor].connectionStatus = uint(db.ConnectionStatus)
 	m.choices[m.cursor].selected = false
 
 	return commands.CmdDatabaseSelectionUpdate

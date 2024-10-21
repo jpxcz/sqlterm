@@ -1,7 +1,6 @@
 package databases_panel
 
 import (
-	"database/sql"
 	"strconv"
 	"strings"
 
@@ -12,8 +11,8 @@ import (
 )
 
 type ConnectedDatabase struct {
-	db    *sql.DB
-	value string
+	database *databases.Database
+	value    string // will be changed for the query results 
 }
 
 type DatabaseModel struct {
@@ -28,7 +27,7 @@ func (m *DatabaseModel) updateCurrentDatabases() {
 		if m.databases[key] != nil && db.ConnectionStatus != databases.DbConnected {
 			delete(m.databases, key)
 		} else if m.databases[key] == nil && db.ConnectionStatus == databases.DbConnected {
-			m.databases[key] = &ConnectedDatabase{db: db.Db, value: key}
+            m.databases[key] = &ConnectedDatabase{database: db, value: key}
 		}
 	}
 }
