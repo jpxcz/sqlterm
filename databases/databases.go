@@ -14,12 +14,13 @@ const (
 type DbConnectionStatus uint
 
 type DatabaseCredentials struct {
-	ShortName string `json:"shortname"`
-	Username  string `json:"username"`
-	Hostname  string `json:"hostname"`
-	Password  string `json:"password"`
-	Port      string `json:"port"`
-	Type      string `json:"type"`
+	ShortName    string `json:"shortname"`
+	Username     string `json:"username"`
+	DatabaseName string `json:"database_name"`
+	Hostname     string `json:"hostname"`
+	Password     string `json:"password"`
+	Port         string `json:"port"`
+	Type         string `json:"type"`
 }
 
 type Database struct {
@@ -39,6 +40,7 @@ func NewDatabases() map[string]*Database {
 			DatabaseCredentials: DatabaseCredentials{
 				ShortName: "DB1",
 				Username:  "user1",
+                DatabaseName: "db1",
 				Hostname:  "0.0.0.0",
 				Password:  "password1",
 				Port:      "3306",
@@ -51,6 +53,7 @@ func NewDatabases() map[string]*Database {
 			DatabaseCredentials: DatabaseCredentials{
 				ShortName: "DB2",
 				Username:  "user2",
+                DatabaseName: "db2",
 				Hostname:  "0.0.0.0",
 				Password:  "password2",
 				Port:      "3307",

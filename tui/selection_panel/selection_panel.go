@@ -126,6 +126,7 @@ func (m *SelectModel) toogleOption() tea.Cmd {
 		dbConnectionStatus, err := databases.ConnectToDatabase(
 			db.DatabaseCredentials.ShortName,
 			db.DatabaseCredentials.Username,
+            db.DatabaseCredentials.DatabaseName,
 			db.DatabaseCredentials.Hostname,
 			db.DatabaseCredentials.Port,
 			db.DatabaseCredentials.Password,

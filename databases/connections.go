@@ -9,13 +9,14 @@ import (
 
 func createDBConnection(
 	username string,
+    dbName string,
 	host string,
 	port string,
 	password string,
 	dbType string,
 ) (*sql.DB, error) {
 	if dbType == "mysql" {
-		return mysql.CreateDBConnection(username, host, port, password)
+		return mysql.CreateDBConnection(username, dbName, host, port, password)
 	}
 
 	return nil, errors.New("Database type " + dbType + " not supported")
@@ -24,6 +25,7 @@ func createDBConnection(
 func ConnectToDatabase(
 	key string,
 	username string,
+    dbName string,
 	host string,
 	port string,
 	password string,
@@ -43,6 +45,7 @@ func ConnectToDatabase(
 
 	db, err := createDBConnection(
 		databaseCredentials.Username,
+        databaseCredentials.DatabaseName,
 		databaseCredentials.Hostname,
 		databaseCredentials.Port,
 		databaseCredentials.Password,
