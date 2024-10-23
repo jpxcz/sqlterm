@@ -1,8 +1,6 @@
 package table_query_panel
 
 import (
-	"log"
-
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -49,14 +47,11 @@ func (m TableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m TableModel) View() string {
-    log.Println("-------------------")
-    log.Println(m.selectedDatabase)
 	node := nodequery.GetLastQueryForDatabase(m.selectedDatabase)
-    if node == nil {
-        return ""
-    }
+	if node == nil {
+		return ""
+	}
 
-    log.Println(node)
 	columns := node.GetColumnsViewData()
 	rows := node.GetRowsViewData()
 
