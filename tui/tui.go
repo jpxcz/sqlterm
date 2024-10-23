@@ -30,9 +30,9 @@ const (
 
 type mainModel struct {
 	state                    sessionState
-	selectDatabasePanelModel tea.Model
-	queryPanelModel          tea.Model
-	databasesPanelModel      tea.Model
+	selectDatabasePanelModel selectModel.SelectModel
+	queryPanelModel          queryModel.QueryModel
+	databasesPanelModel      databasesModel.DatabaseModel
 	uiDimensions             UiDimensions
 }
 
@@ -74,9 +74,24 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.uiDimensions.height = msg.Height
 		m.uiDimensions.width = msg.Width
-	case commands.MsgDatabaseSelectionUpdate:
+	case commands.MsgSyncConnectedDatabases:
 		log.Println("updating databases selection")
-		m.databasesPanelModel.Update(commands.MsgDatabaseSelectionUpdate(true))
+		newDatabasePanelModel, newCmd := m.databasesPanelModel.Update(msg)
+		databaseModel, ok := newDatabasePanelModel.(databasesModel.DatabaseModel)
+		if !ok {
+			panic("model is not a DatabaseModel")
+		}
+		m.databasesPanelModel = databaseModel
+		cmd = newCmd
+	case commands.MsgDatabaseQuery:
+		log.Println("queries have been completed, updating databases panel")
+		newDatabasePanelModel, newCmd := m.databasesPanelModel.Update(msg)
+		databaseModel, ok := newDatabasePanelModel.(databasesModel.DatabaseModel)
+		if !ok {
+			panic("model is not a DatabaseModel")
+		}
+		m.databasesPanelModel = databaseModel
+		cmd = newCmd
 	}
 
 	switch m.state {

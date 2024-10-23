@@ -8,26 +8,28 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/jpxcz/sqlterm/databases"
 	"github.com/jpxcz/sqlterm/tui/commands"
+	"github.com/jpxcz/sqlterm/tui/table_query_panel"
 )
 
 type ConnectedDatabase struct {
 	database *databases.Database
-	value    string // will be changed for the query results 
+	value    string // will be changed for the query results
 }
 
 type DatabaseModel struct {
 	databases map[string]*ConnectedDatabase
 	activeTab int
+	table     table_query_panel.TableModel
 }
 
-func (m *DatabaseModel) updateCurrentDatabases() {
+func (m DatabaseModel) updateCurrentDatabases() {
 	dbs := databases.GetDatabases()
 
 	for key, db := range dbs {
 		if m.databases[key] != nil && db.ConnectionStatus != databases.DbConnected {
 			delete(m.databases, key)
 		} else if m.databases[key] == nil && db.ConnectionStatus == databases.DbConnected {
-            m.databases[key] = &ConnectedDatabase{database: db, value: key}
+			m.databases[key] = &ConnectedDatabase{database: db, value: key}
 		}
 	}
 }
@@ -36,6 +38,7 @@ func NewDatabaseModel(value string) DatabaseModel {
 	return DatabaseModel{
 		databases: make(map[string]*ConnectedDatabase),
 		activeTab: 1,
+		table:     table_query_panel.NewTableModel(""),
 	}
 }
 
@@ -44,6 +47,7 @@ func (m DatabaseModel) Init() tea.Cmd {
 }
 
 func (m DatabaseModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	var cmd tea.Cmd
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		i, err := strconv.Atoi(msg.String())
@@ -57,11 +61,60 @@ func (m DatabaseModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.activeTab = 1
 		}
 
-	case commands.MsgDatabaseSelectionUpdate:
-		m.updateCurrentDatabases()
+		tabs := make([]string, 0, len(m.databases))
+		for key := range m.databases {
+			tabs = append(tabs, key)
+		}
+
+		activeTab := m.activeTab - 1
+		activeKeyTab := tabs[activeTab]
+		newTableModel, newCmd := m.table.Update(commands.MsgDatabasePanelSelectionUpdate(activeKeyTab))
+		tableModel, ok := newTableModel.(table_query_panel.TableModel)
+		if !ok {
+			panic("model is not table query model")
+		}
+		m.table = tableModel
+		cmd = newCmd
+	case commands.MsgSyncConnectedDatabases:
+		dbs := databases.GetDatabases()
+
+		for key, db := range dbs {
+			if m.databases[key] != nil && db.ConnectionStatus != databases.DbConnected {
+				delete(m.databases, key)
+			} else if m.databases[key] == nil && db.ConnectionStatus == databases.DbConnected {
+				m.databases[key] = &ConnectedDatabase{database: db, value: key}
+			}
+		}
+
+		tabs := make([]string, 0, len(m.databases))
+		for key := range m.databases {
+			tabs = append(tabs, key)
+		}
+
+        if (len(tabs) == 0) {
+            break
+        }
+
+		activeTab := m.activeTab - 1
+		activeKeyTab := tabs[activeTab]
+		newTableModel, newCmd := m.table.Update(commands.MsgDatabasePanelSelectionUpdate(activeKeyTab))
+		tableModel, ok := newTableModel.(table_query_panel.TableModel)
+		if !ok {
+			panic("model is not table query model")
+		}
+		m.table = tableModel
+		cmd = newCmd
+	case commands.MsgDatabaseQuery:
+		newTableModel, newCmd := m.table.Update(msg)
+		tableModel, ok := newTableModel.(table_query_panel.TableModel)
+		if !ok {
+			panic("model is not table query model")
+		}
+		m.table = tableModel
+		cmd = newCmd
 	}
 
-	return m, nil
+	return m, cmd
 }
 
 func tabBorderWithBottom(left, middle, right string) lipgloss.Border {
@@ -104,7 +157,6 @@ func (m DatabaseModel) View() string {
 	}
 
 	activeTab := m.activeTab - 1
-	activeKeyTab := tabs[activeTab]
 
 	for i, t := range tabs {
 		var style lipgloss.Style
@@ -138,8 +190,8 @@ func (m DatabaseModel) View() string {
 	doc.WriteString(row)
 	doc.WriteString("\n")
 	doc.WriteString(
-		windowStyle.Width((lipgloss.Width(row) - windowStyle.GetHorizontalFrameSize())).
-			Render(m.databases[activeKeyTab].value),
+		windowStyle.Width(100). // TODO: find real width
+					Render(m.table.View()),
 	)
 	return docStyle.Render(doc.String())
 

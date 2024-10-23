@@ -1,68 +1,47 @@
 package commands
 
 import (
-	"fmt"
 	"log"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/jpxcz/sqlterm/databases"
+	"github.com/jpxcz/sqlterm/nodequery"
 )
 
-type MsgDatabaseSelectionUpdate bool
+type MsgSyncConnectedDatabases bool
+
+type MsgDatabaseQuery bool
+
+type MsgDatabasePanelSelectionUpdate string
 
 func CmdDatabaseSelectionUpdate() tea.Msg {
-	return MsgDatabaseSelectionUpdate(true)
+	return MsgSyncConnectedDatabases(true)
 }
 
 func CmdDatabaseQuery(query string) tea.Cmd {
 	return func() tea.Msg {
 		dbs := databases.GetDatabases()
-		for _, db := range dbs {
+		for key, db := range dbs {
 			if db.ConnectionStatus != databases.DbConnected {
 				continue
 			}
+
 			rows, err := db.Query(query)
 			if err != nil {
-				log.Println(
-					"Error executing query for database",
-					db.DatabaseCredentials.ShortName,
-					err,
-				)
+				log.Println("could not run query", query, err)
+				continue
 			}
 
-			columns, err := rows.Columns()
+			result, err := nodequery.NewQueryResult(query, rows)
 			if err != nil {
-				log.Println("Error getting columns", err)
-			}
-			columnsTypes, err := rows.ColumnTypes()
-
-			for _, col := range columnsTypes {
-				log.Println(col.Name())
+				log.Println("problem parsing query result rows", query, err)
+				continue
 			}
 
-			values := make([]interface{}, len(columns))
-			valuePointers := make([]interface{}, len(columns))
-			for i := range values {
-				valuePointers[i] = &values[i]
-			}
+			nodequery.AttachQueryResult(query, key, result)
 
-			for rows.Next() {
-				if err := rows.Scan(valuePointers...); err != nil {
-					log.Fatal(err)
-				}
-
-				rowData := make(map[string]string)
-				for i, col := range columns {
-					log.Printf("%v", values[i])
-					rowData[col] = fmt.Sprintf("%v", values[i])
-				}
-
-				// Handle the row data as needed (e.g., print it)
-				log.Println(rowData)
-			}
-
-			log.Println("finishedd")
 		}
-		return nil
+
+		return MsgDatabaseQuery(true)
 	}
 }

@@ -2,7 +2,6 @@ package mysql
 
 import (
 	"database/sql"
-	"log"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -15,12 +14,12 @@ func CreateDBConnection(
 	password string,
 ) (*sql.DB, error) {
 	dsn := username + ":" + password + "@tcp(" + host + ":" + port + ")/" + databaseName
-	log.Println("connecting to database", dsn)
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
 		return nil, err
 	}
 
+    // do not close it. It must be handled after the queries are finished
 	// defer db.Close()
 
 	if err := db.Ping(); err != nil {
