@@ -18,11 +18,12 @@ type ConnectedDatabase struct {
 
 type DatabaseModel struct {
 	databases map[string]*ConnectedDatabase
+	tabs      []string
 	activeTab int
 	table     table_query_panel.TableModel
 }
 
-func (m DatabaseModel) updateCurrentDatabases() {
+func (m *DatabaseModel) updateCurrentDatabases() {
 	dbs := databases.GetDatabases()
 
 	for key, db := range dbs {
@@ -32,6 +33,31 @@ func (m DatabaseModel) updateCurrentDatabases() {
 			m.databases[key] = &ConnectedDatabase{database: db, value: key}
 		}
 	}
+}
+
+func (m *DatabaseModel) updateTabs() {
+	tabs := make([]string, 0, len(m.databases))
+	for key := range m.databases {
+		tabs = append(tabs, key)
+	}
+
+	m.tabs = tabs
+}
+
+func (m *DatabaseModel) updateActiveTab() tea.Cmd {
+	activeIndexTab := m.activeTab - 1
+	if activeIndexTab >= len(m.tabs) {
+		return nil
+	}
+
+	activeKeyTab := m.tabs[activeIndexTab]
+	newTableModel, cmd := m.table.Update(commands.MsgDatabasePanelSelectionUpdate(activeKeyTab))
+	tableModel, ok := newTableModel.(table_query_panel.TableModel)
+	if !ok {
+		panic("model is not table query model")
+	}
+	m.table = tableModel
+	return cmd
 }
 
 func NewDatabaseModel(value string) DatabaseModel {
@@ -61,49 +87,11 @@ func (m DatabaseModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.activeTab = 1
 		}
 
-		tabs := make([]string, 0, len(m.databases))
-		for key := range m.databases {
-			tabs = append(tabs, key)
-		}
-
-		activeTab := m.activeTab - 1
-		activeKeyTab := tabs[activeTab]
-		newTableModel, newCmd := m.table.Update(commands.MsgDatabasePanelSelectionUpdate(activeKeyTab))
-		tableModel, ok := newTableModel.(table_query_panel.TableModel)
-		if !ok {
-			panic("model is not table query model")
-		}
-		m.table = tableModel
-		cmd = newCmd
+		cmd = m.updateActiveTab()
 	case commands.MsgSyncConnectedDatabases:
-		dbs := databases.GetDatabases()
-
-		for key, db := range dbs {
-			if m.databases[key] != nil && db.ConnectionStatus != databases.DbConnected {
-				delete(m.databases, key)
-			} else if m.databases[key] == nil && db.ConnectionStatus == databases.DbConnected {
-				m.databases[key] = &ConnectedDatabase{database: db, value: key}
-			}
-		}
-
-		tabs := make([]string, 0, len(m.databases))
-		for key := range m.databases {
-			tabs = append(tabs, key)
-		}
-
-        if (len(tabs) == 0) {
-            break
-        }
-
-		activeTab := m.activeTab - 1
-		activeKeyTab := tabs[activeTab]
-		newTableModel, newCmd := m.table.Update(commands.MsgDatabasePanelSelectionUpdate(activeKeyTab))
-		tableModel, ok := newTableModel.(table_query_panel.TableModel)
-		if !ok {
-			panic("model is not table query model")
-		}
-		m.table = tableModel
-		cmd = newCmd
+		m.updateCurrentDatabases()
+		m.updateTabs()
+		cmd = m.updateActiveTab()
 	case commands.MsgDatabaseQuery:
 		newTableModel, newCmd := m.table.Update(msg)
 		tableModel, ok := newTableModel.(table_query_panel.TableModel)
@@ -147,22 +135,15 @@ func (m DatabaseModel) View() string {
 	doc := strings.Builder{}
 	var renderedTabs []string
 
-	tabs := make([]string, 0, len(m.databases))
-	for key := range m.databases {
-		tabs = append(tabs, key)
-	}
-
-	if len(tabs) == 0 {
+	if len(m.tabs) == 0 {
 		return "not connected yet"
 	}
 
-	activeTab := m.activeTab - 1
-
-	for i, t := range tabs {
+	for i, t := range m.tabs {
 		var style lipgloss.Style
 		isFirst := i == 0
-		isLast := i == len(tabs)-1
-		isActive := i == activeTab
+		isLast := i == len(m.tabs)-1
+		isActive := i == m.activeTab - 1
 
 		if isActive {
 			style = activeTabStyle
