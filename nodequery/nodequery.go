@@ -62,7 +62,10 @@ func GetQueryNode(query string, dbKey string, indexToFind int) *QueryResult {
     for i := 0; i <= indexToFind; i++ {
         if i == indexToFind {
             return initialNode
+        }
 
+        if initialNode.Next == nil {
+            return nil
         }
 
         initialNode = initialNode.Next

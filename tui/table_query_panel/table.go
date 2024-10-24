@@ -34,6 +34,8 @@ func (m TableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case commands.MsgDatabasePanelSelectionUpdate:
 		m.selectedDatabase = string(msg)
+		node := nodequery.GetQueryNode(m.query, m.selectedDatabase, m.lookupHistory)
+		m.node = node
 	case commands.MsgDatabaseQuery:
 		if m.selectedDatabase == "" {
 			break
