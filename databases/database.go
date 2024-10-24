@@ -6,6 +6,7 @@ import (
 	"log"
 
 	"github.com/jpxcz/sqlterm/databases/mysql"
+	"github.com/jpxcz/sqlterm/databases/postgress"
 )
 
 const (
@@ -40,7 +41,15 @@ func (d *Database) Connect() (*sql.DB, error) {
 			d.DatabaseCredentials.Port,
 			d.DatabaseCredentials.Password,
 		)
-	}
+	} else if (d.DatabaseCredentials.Type == "postgress") {
+        return postgress.CreateDBConnection(
+            d.DatabaseCredentials.Username,
+            d.DatabaseCredentials.DatabaseName,
+            d.DatabaseCredentials.Hostname,
+            d.DatabaseCredentials.Port,
+            d.DatabaseCredentials.Password,
+        )
+    }
 
 	return nil, errors.New("database type " + d.DatabaseCredentials.Type + " not supported yet")
 }

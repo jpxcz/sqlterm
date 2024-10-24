@@ -9,28 +9,40 @@ var databases = make(map[string]*Database)
 // TODO: remove hardcoded values. We should get them from somewhere a file or something
 func NewDatabases() map[string]*Database {
 	databases = map[string]*Database{
-		"DB1": {
+		"Mysql-Db1": {
 			ConnectionStatus: DbDisconnected,
 			DatabaseCredentials: DatabaseCredentials{
-				ShortName: "DB1",
-				Username:  "user1",
-                DatabaseName: "db1",
+				ShortName: "MySql-Db1",
+				Username:  "user",
+                DatabaseName: "mysql_db1",
 				Hostname:  "0.0.0.0",
-				Password:  "password1",
+				Password:  "password",
 				Port:      "3306",
 				Type:      "mysql",
 			},
 		},
-		"DB2": {
+		"Mysql-Db2": {
 			ConnectionStatus: DbDisconnected,
 			DatabaseCredentials: DatabaseCredentials{
-				ShortName: "DB2",
-				Username:  "user2",
-                DatabaseName: "db2",
+				ShortName: "Mysql-Db2",
+				Username:  "user",
+                DatabaseName: "mysql_db2",
 				Hostname:  "0.0.0.0",
-				Password:  "password2",
+				Password:  "password",
 				Port:      "3307",
 				Type:      "mysql",
+			},
+		},
+		"Pg-Db1": {
+			ConnectionStatus: DbDisconnected,
+			DatabaseCredentials: DatabaseCredentials{
+				ShortName: "Pg-Db1",
+				Username:  "user",
+                DatabaseName: "postgress_db1",
+				Hostname:  "0.0.0.0",
+				Password:  "password",
+				Port:      "5432",
+				Type:      "postgress",
 			},
 		},
 	}
