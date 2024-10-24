@@ -1,6 +1,8 @@
 package table_query_panel
 
 import (
+	"log"
+
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -18,6 +20,8 @@ type TableModel struct {
 	table            table.Model
 	selectedDatabase string
 	node             *nodequery.QueryResult
+	query            string
+	lookupHistory    int
 }
 
 func (m TableModel) Init() tea.Cmd {
@@ -26,7 +30,6 @@ func (m TableModel) Init() tea.Cmd {
 
 func (m TableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
-	// var cmds []tea.Cmd
 
 	switch msg := msg.(type) {
 	case commands.MsgDatabasePanelSelectionUpdate:
@@ -36,10 +39,17 @@ func (m TableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			break
 		}
 
-		node := nodequery.GetLastQueryForDatabase(m.selectedDatabase)
-		if node == nil {
-			break
-		}
+		m.query = string(msg)
+		m.lookupHistory = 0
+		node := nodequery.GetQueryNode(m.query, m.selectedDatabase, 0)
+		m.node = node
+	case commands.MsgHistoryLookup:
+		lookupHistory := int(msg)
+		log.Println("lookupHistory", lookupHistory)
+		m.lookupHistory = lookupHistory
+		node := nodequery.GetQueryNode(m.query, m.selectedDatabase, m.lookupHistory)
+
+		log.Println("node", node)
 		m.node = node
 	}
 	m.table, cmd = m.table.Update(msg)
@@ -47,13 +57,12 @@ func (m TableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m TableModel) View() string {
-	node := nodequery.GetLastQueryForDatabase(m.selectedDatabase)
-	if node == nil {
+	if m.node == nil {
 		return ""
 	}
 
-	columns := node.GetColumnsViewData()
-	rows := node.GetRowsViewData()
+	columns := m.node.GetColumnsViewData()
+	rows := m.node.GetRowsViewData()
 
 	t := table.New(
 		table.WithColumns(columns),

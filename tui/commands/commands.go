@@ -10,9 +10,11 @@ import (
 
 type MsgSyncConnectedDatabases bool
 
-type MsgDatabaseQuery bool
+type MsgDatabaseQuery string
 
 type MsgDatabasePanelSelectionUpdate string
+
+type MsgHistoryLookup int
 
 func CmdDatabaseSelectionUpdate() tea.Msg {
 	return MsgSyncConnectedDatabases(true)
@@ -42,6 +44,12 @@ func CmdDatabaseQuery(query string) tea.Cmd {
 
 		}
 
-		return MsgDatabaseQuery(true)
+		return MsgDatabaseQuery(query)
 	}
+}
+
+func CmdHistoryLookup(n int) tea.Cmd {
+    return func() tea.Msg {
+        return MsgHistoryLookup(n)
+    }
 }

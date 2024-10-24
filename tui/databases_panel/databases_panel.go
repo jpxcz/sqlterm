@@ -60,7 +60,7 @@ func (m *DatabaseModel) updateActiveTab() tea.Cmd {
 	return cmd
 }
 
-func NewDatabaseModel(value string) DatabaseModel {
+func NewDatabaseModel() DatabaseModel {
 	return DatabaseModel{
 		databases: make(map[string]*ConnectedDatabase),
 		activeTab: 1,
@@ -93,6 +93,14 @@ func (m DatabaseModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.updateTabs()
 		cmd = m.updateActiveTab()
 	case commands.MsgDatabaseQuery:
+		newTableModel, newCmd := m.table.Update(msg)
+		tableModel, ok := newTableModel.(table_query_panel.TableModel)
+		if !ok {
+			panic("model is not table query model")
+		}
+		m.table = tableModel
+		cmd = newCmd
+	case commands.MsgHistoryLookup:
 		newTableModel, newCmd := m.table.Update(msg)
 		tableModel, ok := newTableModel.(table_query_panel.TableModel)
 		if !ok {
@@ -143,7 +151,7 @@ func (m DatabaseModel) View() string {
 		var style lipgloss.Style
 		isFirst := i == 0
 		isLast := i == len(m.tabs)-1
-		isActive := i == m.activeTab - 1
+		isActive := i == m.activeTab-1
 
 		if isActive {
 			style = activeTabStyle

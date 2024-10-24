@@ -2,6 +2,7 @@ package nodequery
 
 import (
 	"database/sql"
+	"log"
 
 	"github.com/charmbracelet/bubbles/table"
 )
@@ -10,6 +11,7 @@ type QueryResult struct {
 	query   string
 	columns []string
 	rows    [][]string
+	Next    *QueryResult
 }
 
 func NewQueryResult(query string, rows *sql.Rows) (*QueryResult, error) {
@@ -26,15 +28,13 @@ func NewQueryResult(query string, rows *sql.Rows) (*QueryResult, error) {
 
 	queryResult.columns = columns
 
-	rawResult := make([][]byte, len(columns))
-	result := make([]string, len(columns))
-
-	dest := make([]interface{}, len(columns))
-	for i := range rawResult {
-		dest[i] = &rawResult[i]
-	}
-
 	for rows.Next() {
+		rawResult := make([][]byte, len(columns))
+		result := make([]string, len(columns))
+		dest := make([]interface{}, len(columns))
+		for i := range rawResult {
+			dest[i] = &rawResult[i]
+		}
 		err = rows.Scan(dest...)
 		if err != nil {
 			return nil, err
@@ -47,6 +47,7 @@ func NewQueryResult(query string, rows *sql.Rows) (*QueryResult, error) {
 				result[i] = string(raw)
 			}
 		}
+		log.Println("result", result)
 		queryResult.rows = append(queryResult.rows, result)
 	}
 
@@ -63,11 +64,11 @@ func (q *QueryResult) GetColumnsViewData() []table.Column {
 }
 
 func (q *QueryResult) GetRowsViewData() []table.Row {
-    rows := []table.Row{}
-    for _, row := range q.rows {
-        r := table.Row(row)
-        rows = append(rows, r)
-    }
+	rows := []table.Row{}
+	for _, row := range q.rows {
+		r := table.Row(row)
+		rows = append(rows, r)
+	}
 
-    return rows
+	return rows
 }

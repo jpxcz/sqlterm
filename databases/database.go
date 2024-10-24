@@ -3,6 +3,7 @@ package databases
 import (
 	"database/sql"
 	"errors"
+	"log"
 
 	"github.com/jpxcz/sqlterm/databases/mysql"
 )
@@ -74,6 +75,7 @@ func (d *Database) Query(query string) (*sql.Rows, error) {
         return nil, err
     }
 
+    log.Println("running query", query)
     rows, err := db.Query(query)
     if err != nil {
         return nil, err
