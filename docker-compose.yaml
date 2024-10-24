@@ -25,22 +25,13 @@ services:
     volumes:
       - ./initial_db/mysql:/docker-entrypoint-initdb.d
   postgres_db1:
-    image: postgres:12
+    image: postgres:17
     container_name: postgres_db1
     environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: postgress_db1
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=postgres_db1
     ports:
-      - "5432:5432"
+      - "5431:5432"
     volumes:
       - ./initial_db/postgres:/docker-entrypoint-initdb.d
-  # sqlite_db1:
-  #   build:
-  #     dockerfile: ./docker/Dockerfile.sqlite
-  #   image: sqlite:latest
-  #   container_name: sqlite_db1
-  #   ports:
-  #     - "3308:3306"
-  #   volumes:
-  #     - ./initial_db/sqlite:/docker-entrypoint-initdb.d

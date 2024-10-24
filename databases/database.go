@@ -7,6 +7,7 @@ import (
 
 	"github.com/jpxcz/sqlterm/databases/mysql"
 	"github.com/jpxcz/sqlterm/databases/postgress"
+	sqlite3 "github.com/jpxcz/sqlterm/databases/sqlite"
 )
 
 const (
@@ -41,54 +42,58 @@ func (d *Database) Connect() (*sql.DB, error) {
 			d.DatabaseCredentials.Port,
 			d.DatabaseCredentials.Password,
 		)
-	} else if (d.DatabaseCredentials.Type == "postgress") {
-        return postgress.CreateDBConnection(
-            d.DatabaseCredentials.Username,
-            d.DatabaseCredentials.DatabaseName,
-            d.DatabaseCredentials.Hostname,
-            d.DatabaseCredentials.Port,
-            d.DatabaseCredentials.Password,
-        )
-    }
+	} else if d.DatabaseCredentials.Type == "postgres" {
+		return postgress.CreateDBConnection(
+			d.DatabaseCredentials.Username,
+			d.DatabaseCredentials.DatabaseName,
+			d.DatabaseCredentials.Hostname,
+			d.DatabaseCredentials.Port,
+			d.DatabaseCredentials.Password,
+		)
+	} else if d.DatabaseCredentials.Type == "sqlite3" {
+		return sqlite3.CreateDBConnection(
+			d.DatabaseCredentials.DatabaseName,
+		)
+	}
 
 	return nil, errors.New("database type " + d.DatabaseCredentials.Type + " not supported yet")
 }
 
 func (d *Database) Ping() error {
-    db, err := d.Connect()
-    defer db.Close()
+	db, err := d.Connect()
+	defer db.Close()
 
-    if err != nil {
-        return err
-    }
+	if err != nil {
+		return err
+	}
 
-    err = db.Ping()
-    if err != nil {
-        d.ConnectionStatus = DbErrorConnection
-    } else {
-        d.ConnectionStatus = DbConnected
-    }
+	err = db.Ping()
+	if err != nil {
+		d.ConnectionStatus = DbErrorConnection
+	} else {
+		d.ConnectionStatus = DbConnected
+	}
 
-    return err
+	return err
 }
 
 func (d *Database) Close() {
-    d.ConnectionStatus = DbDisconnected
+	d.ConnectionStatus = DbDisconnected
 }
 
 func (d *Database) Query(query string) (*sql.Rows, error) {
-    db, err := d.Connect()
-    defer db.Close()
+	db, err := d.Connect()
+	defer db.Close()
 
-    if err != nil {
-        return nil, err
-    }
+	if err != nil {
+		return nil, err
+	}
 
-    log.Println("running query", query)
-    rows, err := db.Query(query)
-    if err != nil {
-        return nil, err
-    }
+	log.Println("running query", query)
+	rows, err := db.Query(query)
+	if err != nil {
+		return nil, err
+	}
 
-    return rows, nil
+	return rows, nil
 }
