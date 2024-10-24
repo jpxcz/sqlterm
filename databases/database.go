@@ -52,7 +52,7 @@ func (d *Database) Connect() (*sql.DB, error) {
 		)
 	} else if d.DatabaseCredentials.Type == "sqlite3" {
 		return sqlite3.CreateDBConnection(
-			d.DatabaseCredentials.DatabaseName,
+			d.DatabaseCredentials.Hostname,
 		)
 	}
 

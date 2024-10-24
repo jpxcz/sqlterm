@@ -50,8 +50,8 @@ func NewDatabases() map[string]*Database {
 			DatabaseCredentials: DatabaseCredentials{
 				ShortName:    "SQLite-1",
 				Username:     "",
-				DatabaseName: "/Users/jp/code/sqlterm/initial_db/sqlite/db1.db",
-				Hostname:     "",
+				DatabaseName: "",
+				Hostname:     "/Users/jp/code/sqlterm/initial_db/sqlite/db1.db",
 				Password:     "",
 				Port:         "",
 				Type:         "sqlite3",
